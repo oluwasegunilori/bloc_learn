@@ -21,8 +21,8 @@ class MyApp extends StatelessWidget {
           create: (context) => InternetCubit(connectivity: connectivity),
         ),
         BlocProvider<CounterCubit>(
-            create: (context) =>
-                CounterCubit(internetCubit: context.read<InternetCubit>()))
+          create: (context) => CounterCubit(),
+        )
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -84,82 +84,92 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            BlocBuilder<InternetCubit, InternetState>(
-                builder: ((context, state) {
-              if (state is InternetConnected) {
-                return Text(
-                  state.connectionType.toString(),
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline1
-                      ?.copyWith(color: Colors.green),
-                );
-              } else if (state is InternetDisconnected) {
-                return Text(
-                  "Disconnected",
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline1
-                      ?.copyWith(color: Colors.red),
-                );
-              }
-
-              return CircularProgressIndicator();
-            })),
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            BlocConsumer<CounterCubit, CounterState>(
-              listener: (context, state) {
-                Scaffold.of(context).showSnackBar(const SnackBar(
-                  content: Text("Increased"),
-                  duration: Duration(milliseconds: 1000),
-                ));
-              },
-              builder: (context, state) {
-                return Text(
-                  state.counterValue.toString(),
-                  style: Theme.of(context).textTheme.headline4,
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
+    return BlocListener<InternetCubit, InternetState>(
+      listener: (context, state) {
+        if (state is InternetConnected) {
           context.read<CounterCubit>().increment();
-          // BlocProvider.of<CounterCubit>(context).increment();
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        } else {
+          context.read<CounterCubit>().decrement();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text(widget.title),
+        ),
+        body: Center(
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          child: Column(
+            // Column is also a layout widget. It takes a list of children and
+            // arranges them vertically. By default, it sizes itself to fit its
+            // children horizontally, and tries to be as tall as its parent.
+            //
+            // Invoke "debug painting" (press "p" in the console, choose the
+            // "Toggle Debug Paint" action from the Flutter Inspector in Android
+            // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
+            // to see the wireframe for each widget.
+            //
+            // Column has various properties to control how it sizes itself and
+            // how it positions its children. Here we use mainAxisAlignment to
+            // center the children vertically; the main axis here is the vertical
+            // axis because Columns are vertical (the cross axis would be
+            // horizontal).
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              BlocBuilder<InternetCubit, InternetState>(
+                  builder: ((context, state) {
+                if (state is InternetConnected) {
+                  return Text(
+                    state.connectionType.name,
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(color: Colors.green),
+                  );
+                } else if (state is InternetDisconnected) {
+                  return Text(
+                    "Disconnected",
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(color: Colors.red),
+                  );
+                }
+
+                return CircularProgressIndicator();
+              })),
+              const Text(
+                'You have pushed the button this many times:',
+              ),
+              BlocConsumer<CounterCubit, CounterState>(
+                listener: (context, state) {
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content:
+                        Text(state.wasIncremented ? "Increased" : "Decreased"),
+                    duration: Duration(milliseconds: 1000),
+                  ));
+                },
+                builder: (context, state) {
+                  return Text(
+                    state.counterValue.toString(),
+                    style: Theme.of(context).textTheme.headline4,
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            context.read<CounterCubit>().increment();
+            // BlocProvider.of<CounterCubit>(context).increment();
+          },
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }

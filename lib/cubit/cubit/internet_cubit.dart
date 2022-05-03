@@ -23,7 +23,7 @@ class InternetCubit extends Cubit<InternetState> {
       } else if (connectivityResult == ConnectivityResult.ethernet) {
         emitInternetConnected(ConnectionType.Ethernet);
       } else if (connectivityResult == ConnectivityResult.mobile) {
-        emitInternetConnected(ConnectionType.Wifi);
+        emitInternetConnected(ConnectionType.Mobile);
       } else if (connectivityResult == ConnectivityResult.bluetooth) {
         emitInternetConnected(ConnectionType.Bluetooth);
       } else {
